@@ -4,7 +4,9 @@ import string
 words = []
 board = []
 boardSize = 4
-with open('words_NL.txt','r') as file:
+found_words = []
+
+with open('words_NL.txt', 'r') as file:
     for line in file:
         for word in line.split():
            words.append(word)
@@ -15,59 +17,59 @@ for i in range(boardSize):
       row.append(random.choice(string.ascii_lowercase))
    board.append(row)
 
-def FormatRow(row):
+def format_row(row):
    return '|' + '|'.join('{0:^3s}'.format(x) for x in row) + '|'
 
-def FormatBoard(board):
-   return '\n\n'.join(FormatRow(row) for row in board)
+def format_board(board):
+   return '\n\n'.join(format_row(row) for row in board)
 
-print(FormatBoard(board))
-foundWords = []
-
-def wordIsValid(newWord):
+def word_valid(new_word):
    for word in words:
-      if(newWord in word):
+      if(new_word in word):
          return True
    return False
 
-def wordNotFound(newWord):
-   for word in foundWords:
-      if(word == newWord):
+def word_not_found(new_word):
+   for word in found_words:
+      if(word == new_word):
          return False
    return True
 
-def wordExists(newWord):
+def word_exists(new_word):
    for word in words:
-      if((word == newWord) and wordNotFound(newWord)):
+      if((word == new_word) and word_not_found(new_word)):
          return True
    return False
 
-def NeighbourIsValid(x,y,word):
+def neighbour_valid(x, y, word):
    if(x == boardSize):
       x = 0
-   if(x == -1):
+   elif(x == -1):
       x = boardSize - 1
-   if(y == boardSize):
+   elif(y == boardSize):
       y = 0
-   if(y == -1):
+   elif(y == -1):
       y = boardSize - 1
-   if not (wordIsValid(word + board[x][y])):
-      if (wordExists(word)):
-         foundWords.append(word)
+
+   if not (word_valid(word + board[x][y])):
+      if (word_exists(word)):
+         found_words.append(word)
          print(word)
       return False
    word += board[x][y]
-   NeighboursValidCharacter(x,y,word)
+   find_words(x, y, word)
 
-def NeighboursValidCharacter(x,y,word):
-   NeighbourIsValid(x - 1,y,word)
-   NeighbourIsValid(x + 1,y,word)
-   NeighbourIsValid(x,y - 1,word)
-   NeighbourIsValid(x,y + 1,word)
+def find_words(x, y, word):
+   neighbour_valid(x - 1, y, word)
+   neighbour_valid(x + 1, y, word)
+   neighbour_valid(x, y - 1, word)
+   neighbour_valid(x, y + 1, word)
+
+print(format_board(board))
 
 for x in range(boardSize):
    for y in range(boardSize):
-      NeighboursValidCharacter(x,y,board[x][y])
+      find_words(x, y, board[x][y])
 
 # Timecomplexity: O(b^D)
 
