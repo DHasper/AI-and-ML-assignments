@@ -31,6 +31,7 @@ This representation has two useful properties:
 """
 import copy
 import random
+import numpy as np
 
 # The black and white pieces represent the two players.
 EMPTY, BLACK, WHITE, OUTER = '.', '@', 'o', '?'
@@ -42,6 +43,16 @@ UP, DOWN, LEFT, RIGHT = -10, 10, -1, 1
 UP_RIGHT, DOWN_RIGHT, DOWN_LEFT, UP_LEFT = -9, 11, 9, -11
 # in total 8 directions.
 DIRECTIONS = (UP, UP_RIGHT, RIGHT, DOWN_RIGHT, DOWN, DOWN_LEFT, LEFT, UP_LEFT)
+BOARD_WEIGHTS = np.array([[0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+                          [0, 64, -8, 8, 8, 8, 8, -8, 64, 0],
+                          [0, -8, -8, 1, 1, 1, 1, -8, -8, 0],
+                          [0, 8, 1, 1, 1, 1, 1, 1, 8, 0],
+                          [0, 8, 1, 1, 1, 1, 1, 1, 8, 0],
+                          [0, 8, 1, 1, 1, 1, 1, 1, 8, 0],
+                          [0, 8, 1, 1, 1, 1, 1, 1, 8, 0],
+                          [0, -8, -8, 1, 1, 1, 1, -8, -8, 0],
+                          [0, 64, -8, 8, 8, 8, 8, -8, 64, 0],
+                          [0, 0, 0, 0, 0, 0, 0, 0, 0, 0]])
 
 
 def squares():
@@ -189,33 +200,47 @@ def play(black_strategy, white_strategy):
                     board, player)
             print(move, player)
             make_move(move, player, board)
+            #a = input()
         player = opponent(player)
-    print("winner is: ",get_winner(board))
+    print("winner is:", get_winner(board))
+
 
 def next_player(board, prev_player):
     # which player should move next?  Returns None if no legal moves exist
     pass
 
+
 def get_move(strategy, player, board):
     # call strategy(player, board) to get a move
     pass
 
+
 def evaluate(player, board):
-    # compute player's score (number of player's pieces minus opponent's)
-    score = 0
-    for piece in board:
-        if (piece == player):
-            score += 1
-    return score
+    new_board = copy.deepcopy(board)
+
+    for i in range(len(new_board)):
+        if new_board[i] == player:
+            new_board[i] = 1
+        elif new_board[i] == opponent(player):
+            new_board[i] = -1
+        else:
+            new_board[i] = 0
+
+    new_board = np.reshape(new_board, (10, 10))
+    new_board = np.multiply(new_board, BOARD_WEIGHTS)
+    #print(new_board)
+    return np.sum(new_board)
+
 
 def get_winner(board):
     # compute player's score (number of player's pieces minus opponent's)
     black_score = 0
     white_score = 0
     for piece in board:
-        if (piece == BLACK): black_score += 1 
-        if (piece == WHITE): white_score += 1 
-    return BLACK if black_score > white_score else WHITE
+        if (piece == BLACK): black_score += 1
+        if (piece == WHITE): white_score += 1
+    return PLAYERS[BLACK] if black_score > white_score else PLAYERS[WHITE]
+
 
 def get_random_move(board, player):
     moves = legal_moves(player, board)
@@ -223,24 +248,23 @@ def get_random_move(board, player):
 
 
 def get_minimax_move(board, player):
-    return minimax(board, 1, player)['action']
+    return minimax(board, 4, -float("inf"), float("inf"),player)['action']
 
 
-def minimax(board, depth, player):
+def minimax(board, depth, alpha, beta, player):
     #print(depth,len(legal_moves(player, board)))
     if depth == 0 or len(legal_moves(player, board)) == 0:
-        return {
-            'score':
-            evaluate(player, board) - evaluate(opponent(player), board),
-            'action': 0
-        }
+        return {'score': evaluate(player, board), 'action': 0}
 
     moves = legal_moves(player, board)
     if player == BLACK:
         max_score = {'score': -float("inf"), 'action': 0}
         for i in range(len(moves)):
             score = minimax(make_move(moves[i], player, copy.deepcopy(board)),
-                            depth - 1, WHITE)
+                            depth - 1, alpha, beta, WHITE)
+            alpha = max(alpha, score['score'])
+            if beta <= alpha:
+                break
             if score['score'] >= max_score['score']:
                 max_score = score
                 max_score['action'] = moves[i]
@@ -248,8 +272,11 @@ def minimax(board, depth, player):
     else:  #player == WHITE
         min_score = {'score': float("inf"), 'action': 0}
         for i in range(len(moves)):
-            score = minimax(make_move(moves[i], player, copy.deepcopy(board)),
-                            depth - 1, WHITE)
+            score = minimax(make_move(moves[i], alpha, copy.deepcopy(board)),
+                            depth - 1, alpha, beta, BLACK)
+            beta = min(beta, score['score'])
+            if beta <= alpha:
+                break
             if score['score'] <= min_score['score']:
                 min_score = score
                 min_score['action'] = moves[i]
