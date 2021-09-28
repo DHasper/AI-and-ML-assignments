@@ -69,4 +69,7 @@ if __name__ == '__main__':
     node = Node([['F', 'G', 'C', 'W'], []])
     # Start searching for solutions
     dfs(node, [], 0)
-    
+
+# Time complexity: O(b^D)
+# b = branching factor:  4
+# D = max depth: 7
