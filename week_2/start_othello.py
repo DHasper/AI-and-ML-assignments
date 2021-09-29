@@ -31,6 +31,7 @@ This representation has two useful properties:
 """
 import copy
 import random
+import time
 import numpy as np
 
 # The black and white pieces represent the two players.
@@ -61,7 +62,6 @@ def squares():
     # 11 means first row, first col, because the board size is 10x10
     return [i for i in range(11, 89) if 1 <= (i % 10) <= 8]
 
-
 def initial_board():
     # create a new board with the initial black and white positions filled
     # returns a list ['?', '?', '?', ..., '?', '?', '?', '.', '.', '.', ...]
@@ -72,7 +72,6 @@ def initial_board():
     board[44], board[45] = WHITE, BLACK
     board[54], board[55] = BLACK, WHITE
     return board
-
 
 def print_board(board):
     # get a string representation of the board
@@ -85,7 +84,6 @@ def print_board(board):
         rep += '%d %s\n' % (row, ' '.join(board[begin:end]))
     return rep
 
-
 # -----------------------------------------------------------------------------
 # Playing the game
 
@@ -96,17 +94,14 @@ def print_board(board):
 # and it must form a bracket with another piece of the same color with pieces of the
 # opposite color in between.
 
-
 def is_valid(move):
     # is move a square on the board?
     # move must be an int, and must refer to a real square
     return isinstance(move, int) and move in squares()
 
-
 def opponent(player):
     # get player's opponent piece
     return BLACK if player is WHITE else WHITE
-
 
 def find_bracket(square, player, board, direction):
     # find and return the square that forms a bracket with square for player in the given
@@ -120,14 +115,12 @@ def find_bracket(square, player, board, direction):
     # if last square board[bracket] not in (EMPTY, OUTER, opp) then it is player
     return None if board[bracket] in (OUTER, EMPTY) else bracket
 
-
 def is_legal(move, player, board):
     # is this a legal move for the player?
     # move must be an empty square and there has to be a bracket in some direction
     # note: any(iterable) will return True if any element of the iterable is true
     hasbracket = lambda direction: find_bracket(move, player, board, direction)
     return board[move] == EMPTY and any(hasbracket(x) for x in DIRECTIONS)
-
 
 def make_move(move, player, board):
     # when the player makes a valid move, we need to update the board and flip all the
@@ -137,7 +130,6 @@ def make_move(move, player, board):
     for d in DIRECTIONS:
         make_flips(move, player, board, d)
     return board
-
 
 def make_flips(move, player, board, direction):
     # flip pieces in the given direction as a result of the move by player
@@ -150,7 +142,6 @@ def make_flips(move, player, board, direction):
         board[square] = player
         square += direction
 
-
 # define an exception
 class IllegalMoveError(Exception):
     def __init__(self, player, move, board):
@@ -162,54 +153,52 @@ class IllegalMoveError(Exception):
         return '%s cannot move to square %d' % (PLAYERS[self.player],
                                                 self.move)
 
-
 def legal_moves(player, board):
     # get a list of all legal moves for player
     # legal means: move must be an empty square and there has to be is an occupied line in some direction
     return [sq for sq in squares() if is_legal(sq, player, board)]
 
-
 def any_legal_move(player, board):
     # can player make any moves?
     return any(is_legal(sq, player, board) for sq in squares())
-
 
 # Putting it all together. Each round consists of:
 # - Get a move from the current player.
 # - Apply it to the board.
 # - Switch players. If the game is over, get the final score.
 
-
 def gameover(board):
     return not any_legal_move(BLACK, board) and not any_legal_move(
         WHITE, board)
 
-
 def play(black_strategy, white_strategy):   # play a game of Othello and return the final board and score
     board = initial_board()
     player = BLACK
+
     while not gameover(board):
-        print(print_board(board))
+        #print(print_board(board))
+        execution_time = time.time()
+
         if legal_moves(player, board):
             move = black_strategy(
                 board, player) if player == BLACK else white_strategy(
                     board, player)
-            print(move, player)
+            #print(move, player)
             make_move(move, player, board)
-            #a = input()
         player = opponent(player)
+        duration = time.time() - execution_time
+        if duration > 2:
+            print("execution time",duration)
+    print(print_board(board))
     print("winner is:", get_winner(board))
-
 
 def next_player(board, prev_player):
     # which player should move next?  Returns None if no legal moves exist
     pass
 
-
 def get_move(strategy, player, board):
     # call strategy(player, board) to get a move
     pass
-
 
 def evaluate(player, board):
     new_board = copy.deepcopy(board)
@@ -226,7 +215,6 @@ def evaluate(player, board):
     new_board = np.multiply(new_board, BOARD_WEIGHTS)
     return np.sum(new_board)
 
-
 def get_winner(board):  # compute player's score (number of player's pieces minus opponent's)
     black_score = 0
     white_score = 0
@@ -235,15 +223,12 @@ def get_winner(board):  # compute player's score (number of player's pieces minu
         if (piece == WHITE): white_score += 1
     return PLAYERS[BLACK] if black_score > white_score else PLAYERS[WHITE]
 
-
 def get_random_move(board, player):
     moves = legal_moves(player, board)
     return random.choice(moves)
 
-
 def get_minimax_move(board, player):
-    return minimax(board, 4, -float("inf"), float("inf"),player)['action']
-
+    return minimax(board, DEPTH, -float("inf"), float("inf"),player)['action']
 
 def minimax(board, depth, alpha, beta, player):
     if depth == 0 or len(legal_moves(player, board)) == 0:
@@ -275,6 +260,18 @@ def minimax(board, depth, alpha, beta, player):
                 min_score['action'] = moves[i]
         return min_score
 
-
-#initial call
+# initial call
+DEPTH = 11
 play(get_minimax_move, get_random_move)
+
+# c Omdat de meeste stenen hebben niet betekent dat je niet persee de winnende positie hebt.
+
+# d een diepte van 6.
+
+# f bij een diepte van 11 
+# performance verbeteringen.
+# - Multithreading toepassen.
+# - Een bitboard gebruiken om het spelbord te representeren. Op die manier kunnen berekeningen gedaan worden doormiddel van bit shifts.
+# - Veel voorkomende resultaten cachen, zodat ze niet nog een keer explored hoeven te worden.
+# - De volgorde van exploration aanpassen om alpha-beta pruning meer efficient te maken. Door moves die statistisch gezien beter zijn eerder te exploren is de kans op pruning groter.
+# - een minder complexe heuristic. 
