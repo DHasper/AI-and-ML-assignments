@@ -151,9 +151,6 @@ def make_flips(move, player, board, direction):
         square += direction
 
 
-# Monitoring players
-
-
 # define an exception
 class IllegalMoveError(Exception):
     def __init__(self, player, move, board):
@@ -188,8 +185,7 @@ def gameover(board):
         WHITE, board)
 
 
-def play(black_strategy, white_strategy):
-    # play a game of Othello and return the final board and score
+def play(black_strategy, white_strategy):   # play a game of Othello and return the final board and score
     board = initial_board()
     player = BLACK
     while not gameover(board):
@@ -228,12 +224,10 @@ def evaluate(player, board):
 
     new_board = np.reshape(new_board, (10, 10))
     new_board = np.multiply(new_board, BOARD_WEIGHTS)
-    #print(new_board)
     return np.sum(new_board)
 
 
-def get_winner(board):
-    # compute player's score (number of player's pieces minus opponent's)
+def get_winner(board):  # compute player's score (number of player's pieces minus opponent's)
     black_score = 0
     white_score = 0
     for piece in board:
@@ -252,7 +246,6 @@ def get_minimax_move(board, player):
 
 
 def minimax(board, depth, alpha, beta, player):
-    #print(depth,len(legal_moves(player, board)))
     if depth == 0 or len(legal_moves(player, board)) == 0:
         return {'score': evaluate(player, board), 'action': 0}
 
@@ -282,52 +275,6 @@ def minimax(board, depth, alpha, beta, player):
                 min_score['action'] = moves[i]
         return min_score
 
-        #else:  #player == WHITE
-        # for child in node.children:
-        #     value = min(value, minimax(child, depth - 1, BLACK))
-        # return value
-
 
 #initial call
 play(get_minimax_move, get_random_move)
-
-# print(minimax(board, 4, BLACK))
-
-# board = initial_board()
-
-# print(print_board(board))
-# make_move(65, BLACK, board)
-# print(print_board(board))
-
-# print(legal_moves(BLACK, board))
-
-# make_move(34, BLACK, board)
-
-# print(print_board(board))
-
-# print(score(BLACK, board))
-
-# def max(value, compare_value):
-#     return value if value >= compare_value else compare_value
-
-# def min(value, compare_value):
-#     return value if value <= compare_value else compare_value
-
-# def max(value, moves):
-#     max_value, move, best_move = 0,0,0
-#     for m in value:
-#         move += 1
-#         if (m >= max_value):
-#             max_value = m
-#             best_move = move
-#     return max_value, moves[best_move]
-
-# def min(value, moves):
-#     min_value, move, best_move = 0,0,0
-#     for m in value:
-#         print(m)
-#         move += 1
-#         if (m <= min_value):
-#             min_value = m
-#             best_move = move
-#     return min_value, moves[best_move]
