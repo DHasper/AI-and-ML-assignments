@@ -54,7 +54,7 @@ def tour_nn(cities):
 
 def two_opt(tour):
     # Improve a tour by removing all intersections using a 2-opt approach
-    # Time complexity: TODO
+    # Time complexity: O(n^3)
 
     tour = tour.copy()
 
@@ -104,7 +104,7 @@ def tour_length(tour):
 def make_cities(n, width=1000, height=1000):
     # make a set of n cities, each with random coordinates within a rectangle (width x height).
 
-    random.seed(15) # the current system time is used as a seed
+    random.seed() # the current system time is used as a seed
                   # note: if we use the same seed, we get the same set of cities
 
     return frozenset(City(random.randrange(width), random.randrange(height)) for c in range(n))
@@ -135,7 +135,7 @@ def test(n):
     deltas = []
     count = 0
 
-    while True:
+    for _ in range(100):
         cities = make_cities(n)
         t0 = time.process_time()
         tour = tour_nn(cities)
@@ -145,7 +145,7 @@ def test(n):
             .format(len(tour), l1, t1 - t0))
         
         t0 = time.process_time()
-        tour = two_opt(tour)
+        tour = try_all_tours(cities)
         t1 = time.process_time()
         l2 = tour_length(tour)
         print("length {:.1f} in {:.3f} secs after optimising tour with 2-opt"
@@ -160,5 +160,12 @@ def test(n):
 
 # give a demo with 10 cities using brute force
 # plot_tsp(try_all_tours, make_cities(10))
-plot_tsp(tour_nn, make_cities(50))
-# test(100)
+# plot_tsp(tour_nn, make_cities(50))
+test(5)
+
+# a) Hoeveel procent ligt het resultaat van NN af van de optimale route? Uit onze tests blijkt dat bij 10 steden het verschil
+#     ongeveer 10% is gemiddeld.
+# 
+
+
+

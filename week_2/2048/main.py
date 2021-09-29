@@ -55,9 +55,8 @@ class MainApp(tk.Frame):
         
     def do_move(self):
         # direction = model.get_random_move()
-        direction = model.get_expectimax_move(self.board)
-        # direction = model.get_expectimax_move(self.board)
         if model.move_exists(self.board):
+            direction = model.get_expectimax_move(self.board)
             self.board = model.play_move(self.board, direction)
             self.update_grid_cells()           # redraw grid
             self.root.after(100, self.do_move)  # reschedule do_move in 0.1 second

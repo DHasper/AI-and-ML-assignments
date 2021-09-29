@@ -4,20 +4,13 @@ import math
 import copy
 import numpy as np
 
-MAX_DEPTH = 4
-
-# WEIGHT_MAP = [
-#     [15/16, 14/16, 13/16, 12/16],
-#     [8/16, 9/16, 10/16, 11/16],
-#     [7/16, 6/16, 5/16, 4/16],
-#     [0/16, 1/16, 2/16, 3/16],
-# ]
+MAX_DEPTH = 3
 
 WEIGHT_MAP = [
-    [32768, 16384, 8192, 4096],
-    [2048, 1024, 512, 256],
-    [128, 64, 32, 16],
-    [8, 4, 2, 1],
+    [64/64, 60/64, 56/64, 52/64],
+    [36/64, 40/64, 44/64, 48/64],
+    [32/64, 28/64, 24/64, 20/64],
+    [4/64, 8/64, 12/64, 16/64],
 ]
 
 def merge_left(b):
@@ -119,12 +112,12 @@ def play_move(b, direction):
     # get merge functin an apply it to board
     b = MERGE_FUNCTIONS[direction](b)
     add_two_four(b)
-    # a = input()
     return b
 
 def add_two_four(b):
     # add a random tile to the board at open position.
     # chance of placing a 2 is 90%; chance of 4 is 10%
+    # random.seed(0)
     rows, cols = list(range(4)), list(range(4))
     random.shuffle(rows)
     random.shuffle(cols)
@@ -167,9 +160,12 @@ def get_random_move():
     return random.choice(list(MERGE_FUNCTIONS.keys()))
 
 def get_expectimax_move(b):
-    return expectimax(b, MAX_DEPTH)['action']
+    move = expectimax(b, MAX_DEPTH)
+    print(move)
+    return move['action']
 
-def adjacent_nodes(b, row, col):
+def adjacent_cells(b, row, col):
+    # Function that returns all adjacent cells given cell(row, col) on board b
     nodes = []
 
     if row < len(b) - 1:
@@ -185,46 +181,46 @@ def adjacent_nodes(b, row, col):
 
 def evaluate(b):
     # Returns an evaluation of the board position
-    # functie: get_adjacent
-    # For node in adjacent:
-    #    if node.score == adjacent.score / 2 or * 2:
-    #       node.score *= adjacent_weight
-    if game_state(b) == 'win': return float('inf')
+    # Largest tile highscore: 8192, MAX_DEPTH = 3
+
+    weighted_board = np.multiply(b, WEIGHT_MAP)
+    weighted_score = np.sum(weighted_board)
+
+    return np.sum(b) * weighted_score
+
+def evaluate_old(b):
+    # Old algorithm to evaluate a board position.
+    # Does not work as well as the new evaluate algorithm
+    # Largest tile highscore: 2048, MAX_DEPTH = 3
 
     n_empty = 0
     smoothness_board = copy.deepcopy(b)
     for row in range(len(b)):
         for col in range(len(b[row])):
             value = b[row][col]
+
             if value == 0:
+                # Count empty cells
                 n_empty += 1
             else:
-                smoothness = 0
-                n_neighbours = 0
-                for adjacent in adjacent_nodes(b, row, col):
-                    if adjacent != 0:
-                        if adjacent == value:
-                            smoothness += value
-                        else:
-                            smoothness += abs(value - adjacent)
-                            n_neighbours += 1
-                if n_neighbours != 0:
-                    smoothness_board[row][col] = smoothness / n_neighbours
-                else:
-                    smoothness_board[row][col] = 0
+                for adjacent in adjacent_cells(b, row, col):
+                    if adjacent == value or adjacent == value / 2 or adjacent == value * 2:
+                        smoothness_board[row][col] = 1
+                    else:
+                        smoothness_board[row][col] = 0
 
     weighted_board = np.multiply(b, WEIGHT_MAP)
-    weighted_board = np.multiply(weighted_board, smoothness_board)
+    smoothness_board = np.multiply(b, smoothness_board)
 
+    # Calculate heuristic scores
     weighted_score = np.sum(weighted_board)
     smoothness_score = np.sum(smoothness_board)
     empty_score = n_empty * np.max(weighted_board)
 
-    # print(n_empty * np.max(weighted_board)/3, weighted_sum)
-    # return np.sum(b) * weighted_score * smoothness_score * empty_score
-    return np.sum(b) * weighted_score
+    return weighted_score * smoothness_score * empty_score
 
 def expectimax(b, depth, player="MAX"):
+    # When node is terminal
     if depth == 0 or not move_exists(b):
         return {'score': evaluate(b)}
 
@@ -236,9 +232,9 @@ def expectimax(b, depth, player="MAX"):
             score = expectimax(new_board, depth-1, "EXP")['score']
             if score > max_score:
                 max_score, best_action = score, action
-        # print(max_score)
+
         return {'score': max_score, 'action': best_action}
-    # Average player
+    # Chance player
     else:
         n_empty = 0
         value = 0
@@ -257,6 +253,11 @@ def expectimax(b, depth, player="MAX"):
                     new_board[row][col] = 4
                     value += 0.1 * expectimax(b, depth-1, "MAX")['score']
 
-        # print(value * 1 / n_empty)
         if n_empty == 0: return {'score': expectimax(b, depth-1, "MAX")['score']}
         return {'score': (value * 1 / n_empty)}
+
+# b) De maximale diepte waarbij de performance acceptabel is, is 5. De performance zou met de volgende manieren vebeterd kunnen worden:
+#     - Het evaluatie/heuristic algoritme minder complex maken.
+#     - Resultaten cachen zodat veel voorkomende situaties niet opnieuw berekend hoeven te worden.
+#     - Multithreading toepassen.
+#     - Een bitboard gebruiken om het spelbord te representeren. 
