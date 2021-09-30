@@ -135,7 +135,7 @@ def test(n):
     deltas = []
     count = 0
 
-    for _ in range(100):
+    while True:
         cities = make_cities(n)
         t0 = time.process_time()
         tour = tour_nn(cities)
@@ -145,7 +145,7 @@ def test(n):
             .format(len(tour), l1, t1 - t0))
         
         t0 = time.process_time()
-        tour = try_all_tours(cities)
+        tour = two_opt(tour)
         t1 = time.process_time()
         l2 = tour_length(tour)
         print("length {:.1f} in {:.3f} secs after optimising tour with 2-opt"
@@ -160,12 +160,26 @@ def test(n):
 
 # give a demo with 10 cities using brute force
 # plot_tsp(try_all_tours, make_cities(10))
-# plot_tsp(tour_nn, make_cities(50))
-test(5)
+# plot_tsp(tour_nn, make_cities(500))
+test(500)
 
 # a) Hoeveel procent ligt het resultaat van NN af van de optimale route? Uit onze tests blijkt dat bij 10 steden het verschil
 #     ongeveer 10% is gemiddeld.
+#
+# b) Hoe lang doet het NN-programma over een route met 500 steden en wat is de totale lengte van de route?
+#     0.062 sec met een totale lengte van 19701.9
+#
+# c) Hoeveel paren takken zijn er in een route van N steden? Aantal takken = n+1
+#
+#    Stel, je maakt een kruising ongedaan, is het (bij jouw strategie) noodzakelijk om te controleren of de
+#    nieuwe route korter is dan de oude? Nee, een kruising ongedaan maken levert altijd een snellere route op.
 # 
+# d) Hoeveel procent is je 2-opt algoritme beter dan het NN-algoritme bij 500 steden? 
+#       Volgens onze tests ongeveer 7.6% in 1.5 seconden
+#
+# e) Wat is de tijdcomplexiteit van het 2-opt-algoritme? O(n^3) waarbij n het aantal steden is.
+
+
 
 
 
