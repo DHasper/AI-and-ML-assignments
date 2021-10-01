@@ -1,4 +1,5 @@
 import random
+import codecs
 import string
 
 words = []
@@ -6,10 +7,10 @@ board = []
 boardSize = 4
 found_words = []
 
-with open('words_NL.txt', 'r') as file:
-    for line in file:
-        for word in line.split():
-           words.append(word)
+with codecs.open('words_NL.txt', 'r', encoding='utf-8', errors='ignore') as file:
+   for line in file:
+      for word in line.split():
+         words.append(word)
 
 for i in range(boardSize):
    row = []
@@ -73,7 +74,7 @@ for x in range(boardSize):
 
 # Timecomplexity: O(b^D)
 
-# b = 16 bij boardsize 4 want boardSize x boardSize = 4 x 4 = 16
+# b = 4
 # D = 25 want het langste woord is 25 characters lang 
 
 # 16^25 = 1.267.650.600.228.229.401.496.703.205.376
