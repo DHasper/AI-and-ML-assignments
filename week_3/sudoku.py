@@ -59,7 +59,7 @@ def display(grid):
         if r == 'C' or r == 'F': 
             print('-------------------')
     print()
-    print(domains)
+    # print(domains)
 
 def parse_string_to_dict(grid_string):
     # grid_string is a string like '4.....8.5.3..........7......2.....6....   '
