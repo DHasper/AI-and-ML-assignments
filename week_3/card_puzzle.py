@@ -46,44 +46,83 @@ def test():
     print('f ',is_valid({0: '.', 1: '.', 2: '.', 3: '.', 4: '.', 5: 'Q', 6: '.', 7: 'Q'})) # [5]
     print('t ',is_valid({0: 'Q', 1: 'Q', 2: '.', 3: '.', 4: '.', 5: '.', 6: '.', 7: '.'}))
 
-#test()
+def solve(alg="DFS"):
+    # Solves the card puzzle using DFS or brute-force strategies
+    if alg == "DFS":
+        print(solve_dfs(start_board, cards))
+    else:
+        print(brute_force())
 
 def brute_force():
-    counter = 0
-    boards = []
+    # Solves using a brute-force strategy
+
+    permutation_counter = 0
+
+    # Test all permutations
     for board in itertools.permutations(cards):
-        counter += 1
-        if board not in boards:
-            if is_valid(dict(zip(range(len(board)), board))):
-                print(board,counter)
-            boards.append(board)
-#brute_force()
+        # Increment counter
+        permutation_counter += 1
+
+        # Convert the board to a dict with board index as key and card as value
+        board_dict = dict(zip(range(len(board)), board))
+        if is_valid(board_dict):
+            # Return solution if board permutation is a valid solution
+            return board_dict, permutation_counter
 
 permutation_counter = 0
 
 def solve_dfs(board, cards):
+    # Solves using a DFS strategy
+
     global permutation_counter
+
+    # If board is full check if the board is a valid solution
     if not any(c == '.' for c in board.values()):
         if is_valid(board):
-            print('Found a solution:')
-            print(board)
-            print(permutation_counter)
-            return True
+            # print((board, permutation_counter))
+            return (board, permutation_counter)
+
+        # This is not a solution, backtrack
         return False
     
-    empty_position = list(board.values()).index('.')
-    non_duplicates = [] 
+    # Choose a board position. If empty 0 and 5 go first to optimize pruning
+    if board[0] == '.': empty_position = 0
+    elif board[5] == '.': empty_position = 5
+    else: empty_position = list(board.values()).index('.')
+
+    # Get non duplicate cards to avoid unneccesary checking
+    non_duplicates = []
     for card in cards:
         if card not in non_duplicates:
             non_duplicates.append(card)
+
+    # Check all possible cards
     for c in non_duplicates:
-        cards.remove(c)
-        board[empty_position] = c
         permutation_counter += 1
+
+        # Set card on the board
+        board[empty_position] = c
+
+        # Remove card from available cards
+        cards.remove(c)
+        
+        # Continue solving
         if solve_dfs(board, cards):
-            return True
+            return (board, permutation_counter)
+
+        # If this is not the solution reset to original state
         board[empty_position] = '.'
         cards.append(c)
+
     return False
 
-solve_dfs(start_board, cards)
+solve("BRUTE_FORCE")
+solve("DFS")
+
+# a) 1. Hoeveel verchillende permutaties zijn er?
+#           8! = 40320, of
+#           8! / (2! * 2! * 2! * 2!) = 2510
+#           Afhankelijk van of kaarten van hetzelfde type gerekend word als een identiek element.
+#    2. Er zijn 997 iteraties nodig om de eerste oplossing te vinden.
+#
+# b) Na het toepassen van DFS zijn er nog maar 52 iteraties nodig om een oplossing te vinden.

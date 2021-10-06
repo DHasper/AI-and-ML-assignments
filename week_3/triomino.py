@@ -161,7 +161,7 @@ def alg_x(row_valid, col_valid, row_has_1_at, col_has_1_at, possible_solution, s
     return solutions
 
 def solve(row_valid, col_valid, row_has_1_at, col_has_1_at, solution):
-    # Using Algorithm X, find all solutions (= set of rows) given valid/uncovered rows and cols
+    # Using Algorithm X, find and print all solutions (= set of rows) given valid/uncovered rows and cols
 
     solutions = alg_x(row_valid, col_valid, row_has_1_at, col_has_1_at, solution, [])
 
@@ -173,3 +173,5 @@ matrix = make_matrix(triominoes)
 halt_fl, row_valid, col_valid, row_has_1_at, col_has_1_at = prepare(matrix)
 if not halt_fl:
     solve(row_valid, col_valid, row_has_1_at, col_has_1_at, [])
+
+# a) Hoeveel oplossingen zijn er? 4
