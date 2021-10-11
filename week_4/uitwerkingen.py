@@ -3,6 +3,7 @@ import matplotlib.pyplot as plt
 from mpl_toolkits.mplot3d import Axes3D
 from matplotlib import cm
 import matplotlib.mlab as mlab
+from numpy.core.fromnumeric import transpose
 
 def draw_graph(data):
     # OPGAVE 1
@@ -72,14 +73,26 @@ def gradient_descent(X, y, theta, alpha, num_iters):
     #   4. update de i-de parameter van theta, namelijk door deze te verminderen met
     #      alpha keer het gemiddelde van de som van de vermenigvuldiging uit 3
 
+    print(theta.shape)
+    theta = np.transpose(theta)
+    print(theta.shape)
     m,n = X.shape
     costs = []
 
     # YOUR CODE HERE
+    for i in range(num_iters):
+        h = X.dot(theta)
+        A = h - y
+        value = A * X
+        
+        print(np.sum(value,axis=0))
+        theta = (theta.transpose() - (alpha * (np.sum(value,axis=0) / m))).transpose() 
 
+        print(theta)
+        
+    print(theta.shape)
     # aan het eind van deze loop retourneren we de nieuwe waarde van theta
     # (wat is de dimensionaliteit van theta op dit moment?).
-
     return theta, costs
 
 def draw_costs(data): 
