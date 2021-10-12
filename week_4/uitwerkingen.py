@@ -93,7 +93,6 @@ def gradient_descent(X, y, theta, alpha, num_iters):
 
 def draw_costs(costs): 
     # OPGAVE 3b
-    print(costs)
     plt.plot(range(len(costs)), costs)
     plt.xlabel('test')
     plt.show()
@@ -119,6 +118,9 @@ def contour_plot(X, y):
     J_vals = np.zeros( (len(t2), len(t2)) )
 
     #YOUR CODE HERE 
+    for i, val_t1 in enumerate(t1):
+        for j, val_t2 in enumerate(t2):
+            J_vals[i][j] = compute_cost(X, y, [[val_t1], [val_t2]])
 
     surf = ax.plot_surface(T1, T2, J_vals, rstride=1, cstride=1, cmap=cm.coolwarm, linewidth=0, antialiased=False)
 
