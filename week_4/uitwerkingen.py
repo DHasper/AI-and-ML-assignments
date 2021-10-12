@@ -85,7 +85,7 @@ def gradient_descent(X, y, theta, alpha, num_iters):
         A = h - y
         value = A * X
         
-        print(np.sum(value,axis=0))
+        # print(np.sum(value,axis=0))
         theta = (theta.transpose() - (alpha * (np.sum(value,axis=0) / m))).transpose() 
 
         print(theta)
