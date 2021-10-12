@@ -49,6 +49,7 @@ def compute_cost(X, y, theta):
     #    5. tal al deze kwadraten bij elkaar op en deel dit door twee keer het aantal datapunten
 
     m = y.shape[0]
+    print(theta.shape)
     h = X.dot(theta)
     delta = (y - h) ** 2
     J = sum(delta) / (2 * m)
@@ -73,9 +74,7 @@ def gradient_descent(X, y, theta, alpha, num_iters):
     #   4. update de i-de parameter van theta, namelijk door deze te verminderen met
     #      alpha keer het gemiddelde van de som van de vermenigvuldiging uit 3
 
-    print(theta.shape)
     theta = np.transpose(theta)
-    print(theta.shape)
     m,n = X.shape
     costs = []
 
@@ -84,13 +83,11 @@ def gradient_descent(X, y, theta, alpha, num_iters):
         h = X.dot(theta)
         A = h - y
         value = A * X
-        
-        print(np.sum(value,axis=0))
         theta = (theta.transpose() - (alpha * (np.sum(value,axis=0) / m))).transpose() 
+        costs.append(i,compute_cost(X,y,theta)[0])
 
-        print(theta)
-        
-    print(theta.shape)
+    print(theta)
+    theta = theta.T
     # aan het eind van deze loop retourneren we de nieuwe waarde van theta
     # (wat is de dimensionaliteit van theta op dit moment?).
     return theta, costs
