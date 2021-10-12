@@ -73,9 +73,7 @@ def gradient_descent(X, y, theta, alpha, num_iters):
     #   4. update de i-de parameter van theta, namelijk door deze te verminderen met
     #      alpha keer het gemiddelde van de som van de vermenigvuldiging uit 3
 
-    print(theta.shape)
     theta = np.transpose(theta)
-    print(theta.shape)
     m,n = X.shape
     costs = []
 
@@ -84,21 +82,21 @@ def gradient_descent(X, y, theta, alpha, num_iters):
         h = X.dot(theta)
         A = h - y
         value = A * X
-        
-        # print(np.sum(value,axis=0))
         theta = (theta.transpose() - (alpha * (np.sum(value,axis=0) / m))).transpose() 
+        costs.append(compute_cost(X,y,theta)[0])
 
-        print(theta)
-        
-    print(theta.shape)
+    print(theta)
+    theta = np.transpose(theta)
     # aan het eind van deze loop retourneren we de nieuwe waarde van theta
     # (wat is de dimensionaliteit van theta op dit moment?).
     return theta, costs
 
-def draw_costs(data): 
+def draw_costs(costs): 
     # OPGAVE 3b
-    # YOUR CODE HERE
-    pass
+    print(costs)
+    plt.plot(range(len(costs)), costs)
+    plt.xlabel('test')
+    plt.show()
 
 def contour_plot(X, y):
     #OPGAVE 4
