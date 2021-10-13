@@ -48,9 +48,19 @@ def compute_cost(X, y, theta):
     #    4. kwadrateer dit verschil
     #    5. tal al deze kwadraten bij elkaar op en deel dit door twee keer het aantal datapunten
 
+    # Make sure theta has the right shape
+    theta = theta.reshape((2, 1))
+
+    # Get n of data points
     m = y.shape[0]
+
+    # Calculate hypotheses
     h = X.dot(theta)
+
+    # Calculate difference with actual value squared
     delta = (y - h) ** 2
+
+    # Calculate cost
     J = sum(delta) / (2 * m)
 
     return J
@@ -73,28 +83,41 @@ def gradient_descent(X, y, theta, alpha, num_iters):
     #   4. update de i-de parameter van theta, namelijk door deze te verminderen met
     #      alpha keer het gemiddelde van de som van de vermenigvuldiging uit 3
 
-    theta = np.transpose(theta)
-    m,n = X.shape
     costs = []
 
-    # YOUR CODE HERE
-    for i in range(num_iters):
-        h = X.dot(theta)
-        A = h - y
-        value = A * X
-        theta = (theta.transpose() - (alpha * (np.sum(value,axis=0) / m))).transpose() 
-        costs.append(compute_cost(X,y,theta)[0])
+    # Make sure theta has the right shape
+    theta = theta.reshape((2, 1))
+    m = X.shape[0]
 
-    print(theta)
-    theta = np.transpose(theta)
-    # aan het eind van deze loop retourneren we de nieuwe waarde van theta
-    # (wat is de dimensionaliteit van theta op dit moment?).
-    return theta, costs
+    for _ in range(num_iters):
+        # Calculate hypotheses
+        h = X.dot(theta)
+
+        # Calculate difference with actual value
+        A = h - y
+
+        # Multiply by X
+        value = A * X
+
+        # Calculate updated theta
+        theta = (theta.T - (alpha * (value.sum(axis=0) / m))).T
+
+        # Calculate cost for new theta and store in costs list
+        costs.append(compute_cost(X, y, theta)[0])
+
+    return theta.T, costs
 
 def draw_costs(costs): 
     # OPGAVE 3b
+    
+    # Plot x and y axis in linegraph
     plt.plot(range(len(costs)), costs)
-    plt.xlabel('test')
+
+    # Set labels
+    plt.xlabel('Iteraties')
+    plt.ylabel('J(θ)')
+    
+    # Show plot
     plt.show()
 
 def contour_plot(X, y):
@@ -109,24 +132,26 @@ def contour_plot(X, y):
 
     fig = plt.figure()
     ax = fig.gca(projection = '3d')
-    jet = plt.get_cmap('jet')
+    plt.get_cmap('jet')
 
-    t1 = np.linspace(-10, 10, 100)
-    t2 = np.linspace(-1, 4, 100)
+    t1 = np.linspace(-10, 10, 10)
+    t2 = np.linspace(-1, 4, 10)
     T1, T2 = np.meshgrid(t1, t2)
 
-    J_vals = np.zeros( (len(t2), len(t2)) )
+    J_vals = np.zeros((len(t2), len(t2)))
 
-    #YOUR CODE HERE 
-    for i, val_t1 in enumerate(t1):
-        for j, val_t2 in enumerate(t2):
-            J_vals[i][j] = compute_cost(X, y, [[val_t1], [val_t2]])
+    # Compute costs for every theta in J_val matrix
+    for i, theta0 in enumerate(t1):
+        for j, theta1 in enumerate(t2):
+            J_vals[i][j] = compute_cost(X, y, np.array([[theta0], [theta1]]))
 
-    surf = ax.plot_surface(T1, T2, J_vals, rstride=1, cstride=1, cmap=cm.coolwarm, linewidth=0, antialiased=False)
+    # Plot surface
+    ax.plot_surface(T1, T2, J_vals, rstride=1, cstride=1, cmap=cm.coolwarm, linewidth=0, antialiased=False)
 
-    xLabel = ax.set_xlabel(r'$\theta_0$', linespacing=3.2)
-    yLabel = ax.set_ylabel(r'$\theta_1$', linespacing=3.1)
-    zLabel = ax.set_zlabel(r'$J(\theta_0, \theta_1)$', linespacing=3.4)
+    # Set labels
+    ax.set_xlabel(r'$\theta_0$', linespacing=3.2)
+    ax.set_ylabel(r'$\theta_1$', linespacing=3.1)
+    ax.set_zlabel(r'$J(\theta_0, \theta_1)$', linespacing=3.4)
 
     ax.dist = 10
 
