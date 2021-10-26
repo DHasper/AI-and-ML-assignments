@@ -36,13 +36,13 @@ def get_y_matrix(y, m):
 
     x = int(max(y))
 
-    # Create a (0,x) empty array
+    # Create an (0,x) empty array
     matrix = np.empty((0, x))
 
     for number in y:
         # Fill row with 0's
         row = np.zeros((1, x))
-        # Set where column to 1
+        # Set column with index y-1 to 1
         row[0][number - 1] = 1
 
         # Stack the row onto matrix
@@ -128,7 +128,7 @@ def sigmoid_gradient(z):
     # Zie de opgave voor de exacte formule. Zorg ervoor dat deze werkt met
     # scalaire waarden en met vectoren.
 
-    pass
+    return sigmoid(z) * (1 - sigmoid(z))
 
 # ==== OPGAVE 3b ====
 def nn_check_gradients(Theta1, Theta2, X, y): 
@@ -137,11 +137,25 @@ def nn_check_gradients(Theta1, Theta2, X, y):
 
     Delta2 = np.zeros(Theta1.shape)
     Delta3 = np.zeros(Theta2.shape)
-    m = 1 #voorbeeldwaarde; dit moet je natuurlijk aanpassen naar de echte waarde van m
+    m = y.shape[0]
 
     for i in range(m): 
-        #YOUR CODE HERE
-        pass
+        # Forward propagation
+        x = X[i]
+        a1 = np.hstack(([1], x))
+        z2 = np.dot(a1, Theta1.T)
+        a2 = sigmoid(z2)
+        a2 = np.hstack(([1], a2))
+        z3 = np.dot(a2, Theta2.T)
+        a3 = sigmoid(z3)
+
+        # Backward propagation
+        d3 = a3 - y[i]
+        d2 = np.dot(Theta2.T, d3)
+        d2 = d2 * np.hstack(([1], sigmoid_gradient(z2)))
+
+        Delta3 = Delta3 + np.dot(d3, a3.T)
+        Delta2 = Delta2 + np.dot(d2, a2.T)
 
     Delta2_grad = Delta2 / m
     Delta3_grad = Delta3 / m
