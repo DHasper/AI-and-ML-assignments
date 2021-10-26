@@ -80,7 +80,7 @@ def predict_number(Theta1, Theta2, X):
     a1 = np.row_stack((X.T, bias_nodes))
 
     # Compute z(2); z(2) = ϴ(1)a(1)
-    z2 = Theta1.dot(a1) # TODO: not sure of dot() hier goed is
+    z2 = Theta1.dot(a1) #
 
     # Compute a(2); g(z(2))
     a2 = sigmoid(z2)
@@ -151,13 +151,31 @@ def nn_check_gradients(Theta1, Theta2, X, y):
 
         # Backward propagation
         d3 = a3 - y[i]
+        grad_2 = sigmoid_gradient(z2)
+        grad_2 = np.hstack(([1], grad_2))
         d2 = np.dot(Theta2.T, d3)
-        d2 = d2 * np.hstack(([1], sigmoid_gradient(z2)))
+        d2 = d2 * grad_2
+        #d2 = d2 * np.hstack(([1], sigmoid_gradient(z2)))
+        
+        #print("d2 shape " , d2.shape)
+        #print("d3 shape " , d3.shape)
+        #print("z2 sigmoid_gradient " , sigmoid_gradient(z2).shape)
+
+
+
+        #print("Theta2 " , np.dot(d2, a2.T))
+
+        #a = input()
 
         Delta3 = Delta3 + np.dot(d3, a3.T)
         Delta2 = Delta2 + np.dot(d2, a2.T)
+        #print("Delta3 " , Delta3)
 
     Delta2_grad = Delta2 / m
     Delta3_grad = Delta3 / m
+
     
+    print("Delta2_grad " , Delta2_grad.shape)
+    print("Delta3_grad " , Delta3_grad.shape)
+
     return Delta2_grad, Delta3_grad
