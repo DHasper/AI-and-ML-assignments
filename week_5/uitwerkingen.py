@@ -80,7 +80,7 @@ def predict_number(Theta1, Theta2, X):
     a1 = np.row_stack((X.T, bias_nodes))
 
     # Compute z(2); z(2) = ϴ(1)a(1)
-    z2 = Theta1.dot(a1) #
+    z2 = Theta1.dot(a1)
 
     # Compute a(2); g(z(2))
     a2 = sigmoid(z2)
@@ -137,11 +137,13 @@ def nn_check_gradients(Theta1, Theta2, X, y):
 
     Delta2 = np.zeros(Theta1.shape)
     Delta3 = np.zeros(Theta2.shape)
+
     m = y.shape[0]
+    y_vect = get_y_matrix(y, m)
 
     for i in range(m): 
         # Forward propagation
-        x = X[i]
+        x = np.array(X[i])
         a1 = np.hstack(([1], x))
         z2 = np.dot(a1, Theta1.T)
         a2 = sigmoid(z2)
@@ -150,32 +152,22 @@ def nn_check_gradients(Theta1, Theta2, X, y):
         a3 = sigmoid(z3)
 
         # Backward propagation
-        d3 = a3 - y[i]
-        grad_2 = sigmoid_gradient(z2)
-        grad_2 = np.hstack(([1], grad_2))
+        d3 = a3 - y_vect[i]
+
         d2 = np.dot(Theta2.T, d3)
-        d2 = d2 * grad_2
-        #d2 = d2 * np.hstack(([1], sigmoid_gradient(z2)))
-        
-        #print("d2 shape " , d2.shape)
-        #print("d3 shape " , d3.shape)
-        #print("z2 sigmoid_gradient " , sigmoid_gradient(z2).shape)
+        d2 = d2 * np.hstack(([1], sigmoid_gradient(z2)))
 
+        # Convert from 1d vectors to 2d matrices
+        d3 = d3.reshape(-1, 1)
+        a2 = a2.reshape(-1, 1)
+        d2 = d2.reshape(-1, 1)
+        a1 = a1.reshape(-1, 1)
+        d2 = d2[1:, :]
 
-
-        #print("Theta2 " , np.dot(d2, a2.T))
-
-        #a = input()
-
-        Delta3 = Delta3 + np.dot(d3, a3.T)
-        Delta2 = Delta2 + np.dot(d2, a2.T)
-        #print("Delta3 " , Delta3)
+        Delta2 += np.dot(d2, a1.T)
+        Delta3 += np.dot(d3, a2.T)
 
     Delta2_grad = Delta2 / m
     Delta3_grad = Delta3 / m
-
-    
-    print("Delta2_grad " , Delta2_grad.shape)
-    print("Delta3_grad " , Delta3_grad.shape)
 
     return Delta2_grad, Delta3_grad

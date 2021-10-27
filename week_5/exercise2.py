@@ -31,8 +31,14 @@ def display_data(X):
 
 itr = 1
 def callbackF(Xi):
-    global itr
+    global itr, input_layer_size, hidden_layer_size, num_labels
     print (f"iteration {itr}")
+    size = hidden_layer_size * (1+input_layer_size) 
+    Theta1 = Xi[:size].reshape(hidden_layer_size, input_layer_size+1)
+    Theta2 = Xi[size:].reshape(num_labels, hidden_layer_size+1)
+    # print("Theta 1 :", Theta1)
+    # print("Theta 2 :", Theta2)
+
     itr += 1
 
 
@@ -43,6 +49,7 @@ def nn_cost_function(Thetas, X, y):
     Theta2 = Thetas[size:].reshape(num_labels, hidden_layer_size+1)
     J = compute_cost(Theta1, Theta2, X, y)
     grad1, grad2 = nn_check_gradients(Theta1, Theta2, X, y)
+    print(J)
     return J, np.concatenate( (grad1.flatten(), grad2.flatten()) ) 
 
 
