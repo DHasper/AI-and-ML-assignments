@@ -25,7 +25,7 @@ def display_data(X):
         plt.subplot(5, 5, idx+1)
         x = X[idx,:].reshape(20,20)
         plt.tick_params(which='both',left=False, bottom=False, top=False, labelleft=False, labelbottom=False)
-        plt.imshow(x, cmap='gray', interpolation='nearest');
+        plt.imshow(x, cmap='Greys', interpolation='nearest');
 
     plt.show()
 
@@ -49,7 +49,7 @@ def nn_cost_function(Thetas, X, y):
     Theta2 = Thetas[size:].reshape(num_labels, hidden_layer_size+1)
     J = compute_cost(Theta1, Theta2, X, y)
     grad1, grad2 = nn_check_gradients(Theta1, Theta2, X, y)
-    print(J)
+    print('cost: ', J)
     return J, np.concatenate( (grad1.flatten(), grad2.flatten()) ) 
 
 

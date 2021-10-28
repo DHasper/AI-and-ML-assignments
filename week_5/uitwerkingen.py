@@ -76,26 +76,26 @@ def predict_number(Theta1, Theta2, X):
     # vector zodat deze dezelfde dimensionaliteit heeft als y in de exercise.
 
     # Add the bias node to a(1)
-    bias_nodes = np.ones((1, X.shape[0]))
-    a1 = np.row_stack((X.T, bias_nodes))
+    bias_nodes = np.ones((X.shape[0], 1))
+    a1 = np.hstack((bias_nodes, X))
 
     # Compute z(2); z(2) = ϴ(1)a(1)
-    z2 = Theta1.dot(a1)
+    z2 = np.dot(a1, Theta1.T)
 
     # Compute a(2); g(z(2))
     a2 = sigmoid(z2)
 
     # Add the bias node to a(2)
-    bias_nodes = np.ones((1, a2.shape[1]))
-    a2 = np.row_stack((a2, bias_nodes))
+    bias_nodes = np.ones((a2.shape[0], 1))
+    a2 = np.hstack((bias_nodes, a2))
 
     # Compute z(3); ϴ(2)a(2)
-    z3 = Theta2.dot(a2)
+    z3 = np.dot(a2, Theta2.T)
 
     # Compute a(3) / hθ(x): g(z(3))
     a3 = sigmoid(z3)
 
-    return a3.T
+    return a3
 
 # ===== deel 2: =====
 def compute_cost(Theta1, Theta2, X, y):
