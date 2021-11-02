@@ -36,12 +36,16 @@ def build_model():
 
     # Het staat je natuurlijk vrij om met andere settings en architecturen te experimenteren.
 
+    # Create the model structure
     model = models.Sequential()
     model.add(layers.Flatten(input_shape=(28, 28)))
     model.add(layers.Dense(128, activation=tf.nn.relu))
     model.add(layers.Dense(10, activation=tf.nn.softmax))
 
+    # Compile model
     model.compile(loss='sparse_categorical_crossentropy', optimizer='adam', metrics='accuracy')
+
+    # Display model structure
     model.summary()
 
     return model
@@ -68,19 +72,26 @@ def conf_els(conf, labels):
     # Check de documentatie van numpy diagonal om de eerste waarde te bepalen.
     # https://numpy.org/doc/stable/reference/generated/numpy.diagonal.html
 
-    tp_values = np.diagonal(conf)
-    fp_values, fn_values, tn_values = [], [], []
+    tp_values, fp_values, fn_values, tn_values = [], [], [], []
 
+    # Count True Positives per category
+    tp_values = np.diagonal(conf)
+
+    # Count False Positives per category
     for i, row in enumerate(conf):
         fp_values.append(sum(row) - tp_values[i])
 
+    # Count False Negatives per category
     for i, col in enumerate(conf.T):
         fn_values.append(sum(col) - tp_values[i])
 
+    # Count True Negatives per category
     for i, row in enumerate(conf):
         tn_values.append(np.sum(conf) - tp_values[i] - fp_values[i] - fn_values[i])
 
-    return list(zip(labels, list(tp_values), fp_values, fn_values, tn_values))
+    # Return list of tuples, format:
+    # (category:string, tp:int, fp:int, fn:int, tn:int)
+    return list(zip(labels, tp_values, fp_values, fn_values, tn_values))
 
 # OPGAVE 2c
 def conf_data(metrics):
@@ -89,11 +100,13 @@ def conf_data(metrics):
     # bepaal vervolgens de metrieken die in de opgave genoemd zijn. Retourneer deze waarden in de
     # vorm van een dictionary (de scaffold hiervan is gegeven).
 
+    # Get total tp, fp, fn and tn values
     tp = sum([metric[1] for metric in metrics])
     fp = sum([metric[2] for metric in metrics])
     fn = sum([metric[3] for metric in metrics])
     tn = sum([metric[4] for metric in metrics])
 
+    # Calculate tpr, ppv, tnr and fpr
     tpr = tp / (tp + fn)
     ppv = tp / (tp + fp)
     tnr = tn / (tn + fp)
